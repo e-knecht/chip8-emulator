@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <iostream>
+#include "chip8.hpp"
 
 int main(int argc, char* argv[]) {
     // Start SDL's video system
@@ -7,6 +8,13 @@ int main(int argc, char* argv[]) {
         std::cerr << "SDL init failed: " << SDL_GetError() << "\n";
         return 1;
     }
+
+    Chip8 chip;
+    bool ok = chip.loadROM("roms/1-chip8-logo.ch8");
+
+    std::cout << "loaded: " << ok << "\n";
+    std::cout << std::hex << (int)chip.memory[0x200] << " "
+              << (int)chip.memory[0x201] << "\n";
 
     // CHIP-8's screen is 64x32, so a 640x320 window is 10x scaled up
     SDL_Window* window = SDL_CreateWindow(
