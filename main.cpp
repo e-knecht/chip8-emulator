@@ -11,9 +11,9 @@ int main(int argc, char* argv[]) {
     }
 
     Chip8 chip;
-    bool ok = chip.loadROM("roms/3-corax+.ch8");
+    bool ok = chip.loadROM("roms/4-flags.ch8");
 
-    if (!chip.loadROM("roms/3-corax+.ch8")){
+    if (!chip.loadROM("roms/4-flags.ch8")){
         std::cerr << "Failed to load ROM\n";
         return 1;
     }
