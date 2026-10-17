@@ -185,6 +185,33 @@ void Chip8::cycle(){
         case 0xE:
             break;
         case 0xF:
+            switch (nn){
+                case 0x1E:
+                    index += reg[x];
+                    break;
+                case 0x33: {
+                    int dec = reg[x];
+                    memory[index + 2] = dec % 10;
+                    memory[index + 1] = (dec / 10) % 10;
+                    memory[index] = (dec / 100) % 10;
+                    break;
+                }
+                case 0x55: {
+                    for(int i = 0; i <= x; ++i){
+                        memory[index + i] = reg[i];
+                    }
+                    break;
+                }
+                case 0x65: {
+                    for(int i = 0; i <= x; ++i){
+                        reg[i] = memory[index + i];
+                    }
+                    break;
+                }
+                default:
+                    std::cout << "unknown opcode: " << std::hex << opcode << "\n";
+                    break;
+            }
             break;
         default:
             std::cout << "unknown opcode: " << std::hex << opcode << "\n";
