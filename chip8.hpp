@@ -17,4 +17,6 @@ class Chip8 {
         uint8_t keypad[16];
 
         bool loadROM(const std::string& filename);
+
+        void cycle();
 };
