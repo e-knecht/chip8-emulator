@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     }
 
     Chip8 chip;
-    bool ok = chip.loadROM("roms/1-chip8-logo.ch8");
+    bool ok = chip.loadROM("roms/2-ibm-logo.ch8");
 
     std::cout << "loaded: " << ok << "\n";
     std::cout << std::hex << (int)chip.memory[0x200] << " "
