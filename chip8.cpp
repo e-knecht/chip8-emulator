@@ -39,7 +39,11 @@ void Chip8::cycle(){
                     std::fill(std::begin(display), std::end(display), 0);
                     break;
                 case 0xEE:
-                            //return from a subroutine
+                    if(sp == 0){
+                        std::cerr << "stack underflow\n";
+                        break;
+                    }
+                    pc = st[--sp];
                     break;
                 default:
                     std::cout << "unknown opcode: " << std::hex << opcode << "\n";
@@ -50,12 +54,28 @@ void Chip8::cycle(){
             pc = nnn;
             break;
         case 0x2:
+            if(sp >= 16){
+                std::cerr << "stack overflow\n";
+                break;
+            }
+            st[sp] = pc;
+            sp++;
+            pc = nnn;
             break;
         case 0x3:
+            if(reg[x] == nn){
+                pc += 2;
+            }
             break;
         case 0x4:
+            if(reg[x] != nn){
+                pc += 2;
+            }
             break;
         case 0x5:
+            if(reg[x] == reg[y]){
+                pc += 2;
+            }
             break;
         case 0x6:
             reg[x] = nn;
@@ -64,8 +84,73 @@ void Chip8::cycle(){
             reg[x] += nn;
             break;
         case 0x8:
+            switch (n){
+                case 0:
+                    reg[x] = reg[y];
+                    break;
+                case 1:
+                    reg[x] |= reg[y];
+                    break;
+                case 2:
+                    reg[x] &= reg[y];
+                    break;
+                case 3:
+                    reg[x] ^= reg[y];
+                    break;
+                case 4:{
+                    int sum = reg[x] + reg[y];
+                    reg[x] += reg[y];
+                    if (sum > 255){
+                        reg[0xF] = 1;
+                    }
+                    else{
+                        reg[0xF] = 0;
+                    }
+                    break;
+                }
+                case 5: {
+                    int sub = reg[x] - reg[y];
+                    reg[x] -= reg[y];
+                    if(sub < 0){
+                        reg[0xF] = 0;
+                    }
+                    else{
+                        reg[0xF] = 1;
+                    }
+                    break;
+                }
+                case 6: {
+                    int bit = reg[x] & 0x1;
+                    reg[x] = reg[x] >> 1;
+                    reg[0xF] = bit;
+                    break;
+                }
+                case 7: {
+                    int sub = reg[y] - reg[x];
+                    reg[x] = reg[y] - reg[x];
+                    if(sub < 0){
+                        reg[0xF] = 0;
+                    }
+                    else{
+                        reg[0xF] = 1;
+                    }
+                    break;
+                }
+                case 0xE: {
+                    int bit = (reg[x] & 0x80) >> 7;
+                    reg[x] = reg[x] << 1;
+                    reg[0xF] = bit;
+                    break;
+                }
+                default:
+                    std::cout << "unknown opcode: " << std::hex << opcode << "\n";
+                    break;
+            }
             break;
         case 0x9:
+            if(reg[x] != reg[y]){
+                pc += 2;
+            }
             break;
         case 0xA:
             index = nnn;
