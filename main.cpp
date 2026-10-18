@@ -3,6 +3,8 @@
 #include <SDL2/SDL_render.h>
 #include <iostream>
 #include "chip8.hpp"
+#include <cstdlib>
+#include <ctime>
 
 //--TUNE PER ROM--
 const int CYCLES_PER_FRAME = 10; //  *60 fps = operations per second
@@ -54,10 +56,12 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Chip8 chip;
-    bool ok = chip.loadROM("roms/6-keypad.ch8");
+    srand(time(nullptr));
 
-    if (!chip.loadROM("roms/6-keypad.ch8")){
+    Chip8 chip;
+    bool ok = chip.loadROM("roms/5-quirks.ch8");
+
+    if (!chip.loadROM("roms/5-quirks.ch8")){
         std::cerr << "Failed to load ROM\n";
         return 1;
     }
