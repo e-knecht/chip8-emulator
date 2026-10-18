@@ -19,4 +19,6 @@ class Chip8 {
         bool loadROM(const std::string& filename);
 
         void cycle();
+
+        void tickTimers();
 };

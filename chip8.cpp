@@ -22,7 +22,7 @@ bool Chip8::loadROM(const std::string& filename) {
     return static_cast<bool>(file);
 }
 
-void Chip8::cycle(){
+void Chip8::cycle() {
     uint16_t opcode = memory[pc]<<8 | memory[pc + 1];
     pc += 2;
 
@@ -183,9 +183,33 @@ void Chip8::cycle(){
             break;
         }
         case 0xE:
+            switch (nn) {
+                case 0x9E:
+                    if(keypad[reg[x] % 16] == 1) {
+                        pc += 2;
+                    }
+                    break;
+                case 0xA1:
+                    if(keypad[reg[x] % 16] != 1){
+                        pc += 2;
+                    }
+                    break;
+                default:
+                    std::cout << "unknown opcode: " << std::hex << opcode << "\n";
+                    break;
+            }
             break;
         case 0xF:
-            switch (nn){
+            switch (nn) {
+                case 0x07:
+                    reg[x] = delay;
+                    break;
+                case 0x15:
+                    delay = reg[x];
+                    break;
+                case 0x18:
+                    sound = reg[x];
+                    break;
                 case 0x1E:
                     index += reg[x];
                     break;
@@ -216,5 +240,14 @@ void Chip8::cycle(){
         default:
             std::cout << "unknown opcode: " << std::hex << opcode << "\n";
             break;
+    }
+}
+
+void Chip8::tickTimers() {
+    if(delay > 0){
+        delay--;
+    }
+    if(sound > 0){
+        sound--;
     }
 }

@@ -1,7 +1,51 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_render.h>
 #include <iostream>
 #include "chip8.hpp"
+
+//--TUNE PER ROM--
+const int CYCLES_PER_FRAME = 10; //  *60 fps = operations per second
+
+// Return slot in keypad[] for keycode
+int keyToSlot(SDL_Keycode key) {
+    switch(key) {
+        case SDLK_1:
+            return 0x1;
+        case SDLK_2:
+            return 0x2;
+        case SDLK_3:
+            return 0x3;
+        case SDLK_4:
+            return 0xC;
+        case SDLK_q:
+            return 0x4;
+        case SDLK_w:
+            return 0x5;
+        case SDLK_e:
+            return 0x6;
+        case SDLK_r:
+            return 0xD;
+        case SDLK_a:
+            return 0x7;
+        case SDLK_s:
+            return 0x8;
+        case SDLK_d:
+            return 0x9;
+        case SDLK_f:
+            return 0xE;
+        case SDLK_z:
+            return 0xA;
+        case SDLK_x:
+            return 0x0;
+        case SDLK_c:
+            return 0xB;
+        case SDLK_v:
+            return 0xF;
+        default:
+            return -1;
+    }
+}
 
 int main(int argc, char* argv[]) {
     // Start SDL's video system
@@ -11,9 +55,9 @@ int main(int argc, char* argv[]) {
     }
 
     Chip8 chip;
-    bool ok = chip.loadROM("roms/4-flags.ch8");
+    bool ok = chip.loadROM("roms/6-keypad.ch8");
 
-    if (!chip.loadROM("roms/4-flags.ch8")){
+    if (!chip.loadROM("roms/6-keypad.ch8")){
         std::cerr << "Failed to load ROM\n";
         return 1;
     }
@@ -38,12 +82,26 @@ int main(int argc, char* argv[]) {
     bool running = true;
     SDL_Event event;
     while (running) {
-        for(int i = 0; i < 10; ++i){
+        for(int i = 0; i < CYCLES_PER_FRAME; ++i){
             chip.cycle();
         }
         // Check for events (closing the window, key presses, etc.)
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) running = false;
+            if(event.type == SDL_KEYDOWN){
+                int slot = keyToSlot(event.key.keysym.sym);
+                if (slot >= 0){
+                    chip.keypad[slot] = 1;
+                }
+                std::cerr << "down " << slot << "\n";
+            }
+            if(event.type == SDL_KEYUP){
+                int slot = keyToSlot(event.key.keysym.sym);
+                if (slot >= 0){
+                    chip.keypad[slot] = 0;
+                }
+                std::cerr << "up " << slot << "\n";
+            }
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // black
@@ -57,7 +115,13 @@ int main(int argc, char* argv[]) {
                 SDL_RenderFillRect(renderer, &rect);
             }
         }
-        SDL_RenderPresent(renderer);                    // show it
+        SDL_RenderPresent(renderer);
+        chip.tickTimers();
+        if (chip.sound > 0)
+            std::cout << "sound: " << (int)chip.sound << "\n";
+        SDL_Delay(16);
+
+            // show it
     }
 
     SDL_DestroyRenderer(renderer);
