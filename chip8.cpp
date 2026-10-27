@@ -26,7 +26,7 @@ const uint8_t fontset[80] = {
 };
 
 Chip8::Chip8() : memory{}, reg{}, index{0}, pc{0x200}, st{}, sp{0},
-delay{0}, sound{0}, display{}, keypad{}, frame{false}{
+delay{0}, sound{0}, display{}, keypad{}, frame{false}, reported{}{
     std::copy(std::begin(fontset), std::end(fontset), &memory[0x50]);
 }
 
@@ -56,19 +56,23 @@ void Chip8::cycle() {
 
     switch (opcode>>12){
         case 0x0:
-            switch (opcode & 0x00FF){
-                case 0xE0:
+            switch (nnn){
+                case 0x0E0:
                     std::fill(std::begin(display), std::end(display), 0);
                     break;
-                case 0xEE:
+                case 0x0EE:
                     if(sp == 0){
                         std::cerr << "stack underflow\n";
                         break;
                     }
                     pc = st[--sp];
                     break;
-                default:
-                    std::cout << "unknown opcode: " << std::hex << opcode << "\n";
+                default: //0NNN machine-code calls and SUPER-CHIP extensions aren't supported
+                    if(reported[nnn]){
+                        break;
+                    }
+                    std::cerr << "unsupported instruction: " << std::hex << opcode << std::dec << ", skipping\n";
+                    reported[nnn] = true;
                     break;
             }
             break;
