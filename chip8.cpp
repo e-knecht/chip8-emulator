@@ -271,12 +271,14 @@ void Chip8::cycle() {
                     for(int i = 0; i <= x; ++i){
                         memory[index + i] = reg[i];
                     }
+                    index += x + 1;
                     break;
                 }
                 case 0x65: {
                     for(int i = 0; i <= x; ++i){
                         reg[i] = memory[index + i];
                     }
+                    index += x + 1;
                     break;
                 }
                 // case 0x75:
