@@ -112,12 +112,15 @@ void Chip8::cycle() {
                     break;
                 case 1:
                     reg[x] |= reg[y];
+                    reg[0xF] = 0;
                     break;
                 case 2:
                     reg[x] &= reg[y];
+                    reg[0xF] = 0;
                     break;
                 case 3:
                     reg[x] ^= reg[y];
+                    reg[0xF] = 0;
                     break;
                 case 4:{
                     int sum = reg[x] + reg[y];
@@ -254,6 +257,9 @@ void Chip8::cycle() {
                 case 0x29:
                     index = 0x50 + (reg[x] % 16) * 5;
                     break;
+                // case 0x30:
+                //     index = 0x50 + (reg[x] % 16) * 10;
+                //     break;
                 case 0x33: {
                     int dec = reg[x];
                     memory[index + 2] = dec % 10;
@@ -273,6 +279,16 @@ void Chip8::cycle() {
                     }
                     break;
                 }
+                // case 0x75:
+                //     for(int i = 0; i <= x; ++i){
+                //
+                //     }
+                //     break;
+                // case 0x85:
+                //     for(int i = 0; i <= x; ++i){
+                //
+                //     }
+                //     break;
                 default:
                     std::cout << "unknown opcode: " << std::hex << opcode << "\n";
                     break;
