@@ -5,9 +5,11 @@
 #include "chip8.hpp"
 #include <cstdlib>
 #include <ctime>
+#include <stdexcept>
+#include <string>
 
-//--TUNE PER ROM--
-const int CYCLES_PER_FRAME = 10; //  *60 fps = operations per second
+const int MAX_CYCLES = 1000;
+const int MIN_CYCLES = 1;
 
 // Return slot in keypad[] for keycode
 int keyToSlot(SDL_Keycode key) {
@@ -50,9 +52,48 @@ int keyToSlot(SDL_Keycode key) {
 }
 
 int main(int argc, char* argv[]) {
+    int cyclesPerFrame = 15; //  *60 fps = operations per second
     if(argc < 2){
-        std::cerr << "Usage: " << argv[0] << " <rom-path>\n";
+        std::cerr << "Usage: " << argv[0] << " <rom-path> [--cpf N]\n";
         return 1;
+    }
+    for(int i = 2; i < argc; ++i){
+        if(std::string(argv[i]) == "--cpf"){
+            if(argc > i + 1){
+                std::string n = argv[i + 1];
+                std::size_t used = 0;
+                int value = 0;
+                try{
+                    value = std::stoi(n, &used);
+                }
+                catch(const std::invalid_argument&){
+                    std::cerr << "Cycles per frame value given, " << n << ", was not an integer\nUsage: " << argv[0] << " <rom-path> [--cpf N]\n";
+                    return 1;
+                }
+                catch(const std::out_of_range&){
+                    std::cerr << "Cycles per frame value given, " << n << ", was out of bounds [" << MIN_CYCLES << "," << MAX_CYCLES << "]\nUsage: " << argv[0] << " <rom-path> [--cpf N]\n";
+                    return 1;
+                }
+                if(used != n.length()){
+                    std::cerr << "Cycles per frame value given, " << n << ", was not an integer\nUsage: " << argv[0] << " <rom-path> [--cpf N]\n";
+                    return 1;
+                }
+                if(value > MAX_CYCLES || value < MIN_CYCLES){
+                    std::cerr << "Cycles per frame value given, " << n << ", was out of bounds [" << MIN_CYCLES << "," << MAX_CYCLES << "]\nUsage: " << argv[0] << " <rom-path> [--cpf N]\n";
+                    return 1;
+                }
+                cyclesPerFrame = value;
+                ++i;
+            }
+            else{
+                std::cerr << "No cycles per frame value given\nUsage: " << argv[0] << " <rom-path> [--cpf N]\n";
+                return 1;
+            }
+        }
+        else{
+            std::cerr << "Unknown option: " << argv[i] << "\nUsage: " << argv[0] << " <rom-path> [--cpf N]\n";
+            return 1;
+        }
     }
     Chip8 chip;
     if (!chip.loadROM(argv[1])){
@@ -91,7 +132,7 @@ int main(int argc, char* argv[]) {
     bool running = true;
     SDL_Event event;
     while (running) {
-        for(int i = 0; i < CYCLES_PER_FRAME; ++i){
+        for(int i = 0; i < cyclesPerFrame; ++i){
             chip.cycle();
         }
         // Check for events (closing the window, key presses, etc.)
