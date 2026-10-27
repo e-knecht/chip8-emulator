@@ -15,6 +15,7 @@ class Chip8 {
         uint8_t sound;
         uint8_t display[64 * 32];   //row 0, 0-63 and so on
         uint8_t keypad[16];
+        bool frame;
 
         bool loadROM(const std::string& filename);
 

@@ -26,7 +26,7 @@ const uint8_t fontset[80] = {
 };
 
 Chip8::Chip8() : memory{}, reg{}, index{0}, pc{0x200}, st{}, sp{0},
-delay{0}, sound{0}, display{}, keypad{} {
+delay{0}, sound{0}, display{}, keypad{}, frame{false}{
     std::copy(std::begin(fontset), std::end(fontset), &memory[0x50]);
 }
 
@@ -187,6 +187,10 @@ void Chip8::cycle() {
             reg[x] = rand() & nn;
             break;
         case 0xD: {
+            if(!frame){
+                pc -= 2;
+                break;
+            }
             uint8_t xpos = reg[x] % 64;
             uint8_t ypos = reg[y] % 32;
             reg[0xF] = 0;
@@ -207,6 +211,7 @@ void Chip8::cycle() {
                     }
                 }
             }
+            frame = false;
             break;
         }
         case 0xE:
@@ -309,4 +314,5 @@ void Chip8::tickTimers() {
     if(sound > 0){
         sound--;
     }
+    frame = true;
 }
