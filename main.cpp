@@ -50,6 +50,16 @@ int keyToSlot(SDL_Keycode key) {
 }
 
 int main(int argc, char* argv[]) {
+    if(argc < 2){
+        std::cerr << "Usage: " << argv[0] << " <rom-path>\n";
+        return 1;
+    }
+    Chip8 chip;
+    if (!chip.loadROM(argv[1])){
+        std::cerr << "Failed to load ROM\n";
+        return 1;
+    }
+
     // Start SDL's video system
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL init failed: " << SDL_GetError() << "\n";
@@ -58,30 +68,25 @@ int main(int argc, char* argv[]) {
 
     srand(time(nullptr));
 
-    Chip8 chip;
-    bool ok = chip.loadROM("roms/5-quirks.ch8");
-
-    if (!chip.loadROM("roms/5-quirks.ch8")){
-        std::cerr << "Failed to load ROM\n";
-        return 1;
-    }
-
-    std::cout << "loaded: " << ok << "\n";
-    std::cout << std::hex << (int)chip.memory[0x200] << " "
-              << (int)chip.memory[0x201] << "\n";
-
     // CHIP-8's screen is 64x32, so a 640x320 window is 10x scaled up
     SDL_Window* window = SDL_CreateWindow(
-        "CHIP-8",
+        argv[1],
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         640, 320, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "Window failed: " << SDL_GetError() << "\n";
+        SDL_Quit();
         return 1;
     }
 
     // The renderer is what actually draws into the window
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+    if (!renderer) {
+        std::cerr << "Renderer failed: " << SDL_GetError() << "\n";
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
 
     bool running = true;
     SDL_Event event;
@@ -97,14 +102,12 @@ int main(int argc, char* argv[]) {
                 if (slot >= 0){
                     chip.keypad[slot] = 1;
                 }
-                std::cerr << "down " << slot << "\n";
             }
             if(event.type == SDL_KEYUP){
                 int slot = keyToSlot(event.key.keysym.sym);
                 if (slot >= 0){
                     chip.keypad[slot] = 0;
                 }
-                std::cerr << "up " << slot << "\n";
             }
         }
 
@@ -121,11 +124,7 @@ int main(int argc, char* argv[]) {
         }
         SDL_RenderPresent(renderer);
         chip.tickTimers();
-        if (chip.sound > 0)
-            std::cout << "sound: " << (int)chip.sound << "\n";
         SDL_Delay(16);
-
-            // show it
     }
 
     SDL_DestroyRenderer(renderer);
