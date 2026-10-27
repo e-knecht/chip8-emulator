@@ -203,7 +203,7 @@ void Chip8::cycle() {
             uint8_t ypos = reg[y] % 32;
             reg[0xF] = 0;
             for(int row = 0; row < n; ++row){
-                uint8_t spriteByte = memory[index + row];
+                uint8_t spriteByte = memory[(index + row) % 0xFFF];
                 for(int col = 0; col < 8; ++col){
                     if((spriteByte & (0x80 >> col)) != 0){
                         int screenX = xpos + col;
@@ -276,21 +276,21 @@ void Chip8::cycle() {
                     break;
                 case 0x33: {
                     int dec = reg[x];
-                    memory[index + 2] = dec % 10;
-                    memory[index + 1] = (dec / 10) % 10;
-                    memory[index] = (dec / 100) % 10;
+                    memory[(index + 2) % 0xFFF] = dec % 10;
+                    memory[(index + 1) % 0xFFF] = (dec / 10) % 10;
+                    memory[index % 0xFFF] = (dec / 100) % 10;
                     break;
                 }
                 case 0x55: {
                     for(int i = 0; i <= x; ++i){
-                        memory[index + i] = reg[i];
+                        memory[(index + i) % 0xFFF] = reg[i];
                     }
                     index += x + 1;
                     break;
                 }
                 case 0x65: {
                     for(int i = 0; i <= x; ++i){
-                        reg[i] = memory[index + i];
+                        reg[i] = memory[(index + i) % 0xFFF];
                     }
                     index += x + 1;
                     break;
