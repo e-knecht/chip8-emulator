@@ -145,8 +145,8 @@ void Chip8::cycle() {
                     break;
                 }
                 case 6: {
-                    int bit = reg[x] & 0x1;
-                    reg[x] = reg[x] >> 1;
+                    int bit = reg[y] & 0x1;
+                    reg[x] = reg[y] >> 1;
                     reg[0xF] = bit;
                     break;
                 }
@@ -162,8 +162,8 @@ void Chip8::cycle() {
                     break;
                 }
                 case 0xE: {
-                    int bit = (reg[x] & 0x80) >> 7;
-                    reg[x] = reg[x] << 1;
+                    int bit = (reg[y] & 0x80) >> 7;
+                    reg[x] = reg[y] << 1;
                     reg[0xF] = bit;
                     break;
                 }
