@@ -51,12 +51,12 @@ Verified with [Timendus's CHIP-8 test suite](https://github.com/Timendus/chip8-t
 
 | ROM | Result |
 |-----|--------|
-| 1-chip8-logo | <!-- TODO --> |
-| 2-ibm-logo   | <!-- TODO --> |
-| 3-corax+     | <!-- TODO --> |
-| 4-flags      | <!-- TODO --> |
-| 5-quirks     | <!-- TODO --> |
-| 6-keypad     | <!-- TODO --> |
+| 1-chip8-logo | ✅Pass (logo renders) |
+| 2-ibm-logo   | ✅Pass (logo renders) |
+| 3-corax+     | ✅Pass (all opcode checks) |
+| 4-flags      | ✅Pass (all flag checks) |
+| 5-quirks     | ✅Pass (all 6 quirks match CHIP-8) |
+| 6-keypad     | ✅Pass (EX9E, EXA1, FX0A) |
 | 7-beep       | Not supported (no audio yet) |
 
 ## Design notes
