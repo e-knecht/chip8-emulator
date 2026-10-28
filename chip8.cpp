@@ -26,7 +26,7 @@ const uint8_t fontset[80] = {
 };
 
 Chip8::Chip8() : memory{}, reg{}, index{0}, pc{0x200}, st{}, sp{0},
-delay{0}, sound{0}, display{}, keypad{}, frame{false}, reported{}{
+delay{0}, sound{0}, display{}, keypad{}, frame{}, reported{}, pressed{}, key{}{
     std::copy(std::begin(fontset), std::end(fontset), &memory[0x50]);
 }
 
@@ -249,15 +249,22 @@ void Chip8::cycle() {
                     reg[x] = delay;
                     break;
                 case 0x0A: {
-                    bool pressed = false;
-                    for(int i = 0; i < 16; ++i){
-                        if(keypad[i] == 1){
-                            reg[x] = i;
-                            pressed = true;
+                    if(!pressed){
+                        for(int i = 0; i < 16; ++i){
+                            if(keypad[i] == 1){
+                                key = i;
+                                pressed = true;
+                                break;
+                            }
+                        }
+                        pc -= 2;
+                    }
+                    else{
+                        if(keypad[key] == 0){
+                            reg[x] = key;
+                            pressed = false;
                             break;
                         }
-                    }
-                    if(!pressed){
                         pc -= 2;
                     }
                     break;

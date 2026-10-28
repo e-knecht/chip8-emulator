@@ -17,6 +17,8 @@ class Chip8 {
         uint8_t keypad[16];
         bool frame;
         bool reported[0x10000];
+        bool pressed;
+        uint8_t key;
 
         bool loadROM(const std::string& filename);
 
